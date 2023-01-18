@@ -1,0 +1,13 @@
+.bg-gray {
+    background-color: gainsboro;
+    border-radius: 5px;
+}
+
+.border {
+    border: 1px solid black;
+    border-radius: 2px;
+}
+
+.h-150px{
+    height: 150px !important;
+}
