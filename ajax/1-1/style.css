@@ -11,3 +11,9 @@
 .h-150px{
     height: 150px !important;
 }
+#requestBody{
+    display: none;
+}
+#responseBody{
+    display: none;
+}

@@ -1,100 +1,69 @@
-const usersListContainer = document.getElementById('usersList');
-const userProfileModalTitle = document.getElementById('userProfileModalTitle');
-const userProfileModalBody = document.getElementById('userProfileModalBody');
-const modalBody=document.querySelector('.modal-body')
-const modalHeader = document.querySelector('.modal-header')
-const modalFooter = document.querySelector('.modal-footer')
-const modal=document.querySelector('.modal')
-
-const generateProfileInformation = ({ id, email, first_name, last_name, avatar }, collapse = true) => {
-    return `
-        <img src="${avatar}" class="rounded-circle shadow-1-strong d-flex m-auto mb-4" style="height:100px" alt="${id}">
-        <h5 class="card-title">${first_name} ${last_name}</h5>
-        <hr />
-        <p class="small">UID: ${id}</p>
-        <hr />
-        <p class="small">Email:${email}</p>
-        <button onclick=renderUpdateUser()> Edit</button>
-        <button> Delete</button>
-        `
-
-}
-
-function resetModal() {
-    modalBody.innerHTML = ""
-    modalHeader.innerHTML = ""
-    modalFooter.innerHTML=""
-}
-
-function openModal() {
-    modal.style.display = 'block'
-}
-
-function closeModal() {
-    modal.style.display = 'none'
-}
-function renderUpdateUser({ id, ...params }) {
-    console.log(id);
-    resetModal()
-    const user = users.find(user => user.uid === uid)
-
-    document.querySelector('.modal-header').textContent = 'updae user'
-
-    document.querySelector('.modal-body').innerHTML = Object.keys(user)
-        .map(property => {
-            if (property === 'uid') {
-                return (`<input type="text" id="${property}" class="updateInput" value="${user[property]}" disabled></input>`).join('')
-            }
+$(() => {
+    $.ajax({
+        url: 'https://reqres.in/api/users?page=1',
+        type: 'GET',
+        success: function (response, _status, jqXHR) {
+            $.ajax({
+                url: 'https://reqres.in/api/users?page=2',
+                type: 'GET',
+                success: function (response2) {
+                    users = response.data.concat(response2.data);
+                    console.log(users);
+                    pagination()
+                },
+                error: function (err) {
+                    console.log('error in gettting first items', err);
+                },
+            });
 
 
-            return (`<input type="text" id="${property}" class="updateInput" value="${user[property]}"></input>`)
+        },
+        error: function (err) {
+            console.log('error in gettting first items', err);
+        },
+    });
 
-        })
-    modalFooter.innerHTML = `
-            <button onclick='updateUser(${user.id})'>save</button>
-            <button onclick='renderUpdateUser(${user.id})cancle</button>
-        `
+});
 
-}
+let users = [];
+function pagination(currentPage = 1) {
+    let numberOfUser = users.length
+    let numberOfUserInPerPage = 6
+    let currPaeg = currentPage
+    let numberOfPages = Math.ceil(numberOfUser / numberOfUserInPerPage)
+    let startUser = (currPaeg - 1) * numberOfUserInPerPage
+    let endUser = startUser + numberOfUserInPerPage
+    let showUserPerPage = users.slice(startUser, endUser)
 
-
-function updateUser({ id, ...params }) {
-    console.log(users);
-    const user = users.find(user => user.id === id)
-
-    const updateInputs = document.querySelectorAll('.updateInputs')
-
-    for (const input of updateInputs) {
-        if (input.value.trim() === "") return "invalid input"
-
-        if (input.id == 'id') {
-            user[input.id] = Number(input.value)
-            continue;
-        }
-
-
-        user[input.id] = input.value
+    if (currPaeg == 2) {
+        document.querySelector('.first').classList.remove('active')
+        document.querySelector('.second').classList.add('active')
     }
-    closeModal()
-    cardGenerator ({ id, ...params })
+    else {
+        document.querySelector('.second').classList.remove('active')
+        document.querySelector('.first').classList.add('active')
+    }
+    renderUsersList(showUserPerPage)
 }
 
-function showModalInformation({ first_name, last_name, ...params }) {
-    const title = `${first_name} ${last_name}`;
-    userProfileModalTitle.innerText = title;
+const usersListGenerator = (filterUsers) => {
 
-    const profileInfo = generateProfileInformation({ first_name, last_name, ...params }, false);
+    const usersToShow = filterUsers ? filterUsers : users;
 
-    userProfileModalBody.innerHTML = profileInfo
+    let usersListBody = '';
+    for (const user of usersToShow) {
+        usersListBody += cardGenerator(user);
+    }
+    return usersListBody;
 }
 
-function handleOnClickProfileBtn(id) {
-    const targetUser = users.find(el => el.id === id);
-    selectedUser = targetUser;
-    showModalInformation(targetUser);
+const renderUsersList = (filterUsers) => {
+    $('#usersList').html(usersListGenerator(filterUsers))
 }
+
 
 function cardGenerator({ id, first_name, last_name, avatar, email }) {
+    console.log("test");
     return `
         <div class="col-12 col-md-6  col-lg-4">
             <div class="card shadow ">
@@ -118,20 +87,38 @@ function cardGenerator({ id, first_name, last_name, avatar, email }) {
         </div>
         `
 }
-
-const usersListGenerator = (filterUsers) => {
-
-    const usersToShow = filterUsers ? filterUsers : users;
-
-    let usersListBody = '';
-    for (const user of usersToShow) {
-        usersListBody += cardGenerator(user);
-    }
-    return usersListBody;
+function handleOnClickProfileBtn(id) {
+    const targetUser = users.find(el => el.id === id);
+    selectedUser = targetUser;
+    showModalInformation(targetUser);
 }
+function showModalInformation({ first_name, last_name, ...params }) {
+    const title = `${first_name} ${last_name}`;
+    $('#userProfileModalTitle').text(title);
 
-const renderUsersList = (filterUsers) => {
-    usersListContainer.innerHTML = usersListGenerator(filterUsers);
+    const profileInfo = generateProfileInformation({ first_name, last_name, ...params }, false);
+
+    $('#userProfileModalBody').html(profileInfo)
+}
+function updateUser(id) {
+    console.log(users);
+    const user = users.find(user => user.id === id)
+    console.log(user);
+    const updateInput = $('.updateInput')
+    for (let i = 0; i < Object.keys(user).length; i++) {
+        console.log(updateInput[i].value);
+        // if (updateInput[i].value.trim() === "") return "invalid input"
+        // console.log(updateInput[i].id);
+        // if (input.id == 'id') {
+        //     user[input.id] = Number(input.value)
+        //     continue;
+        // }
+        user[updateInput[i].id] = updateInput[i].value
+    }
+
+    closeModal()
+    renderUsersList(users)
+
 }
 
 function filterUserList() {
@@ -149,24 +136,64 @@ function filterUserList() {
 
     renderUsersList(filterUsers)
 }
-
-function pagination(currentPage = 1) {
-    let numberOfUser = users.length
-    let numberOfUserInPerPage = 6
-    let currPaeg = currentPage
-    let numberOfPages = Math.ceil(numberOfUser / numberOfUserInPerPage)
-    let startUser = (currPaeg - 1) * numberOfUserInPerPage
-    let endUser = startUser + numberOfUserInPerPage
-    let showUserPerPage = users.slice(startUser, endUser)
-
-    if (currPaeg == 2) {
-        document.querySelector('.first').classList.remove('active')
-        document.querySelector('.second').classList.add('active')
-    }
-    else {
-        document.querySelector('.second').classList.remove('active')
-        document.querySelector('.first').classList.add('active')
-    }
-    renderUsersList(showUserPerPage)
+function openModal() {
+    $('.modal').css("display", "block")
+    $('.modal-backdrop').css("display", "block")
 }
-pagination()
+
+function closeModal() {
+    $('.modal').css("display", "none")
+    $('.modal-backdrop').css("display", "none")
+}
+function renderUpdateUser(id) {
+    console.log(id);
+    resetModal()
+    const user = users.find(user => user.id === +id)
+    console.log(users);
+    console.log(users.find(user => user.id == id));
+
+    $('.modal-header').text('updae user')
+
+    $('.modal-body').html(Object.keys(user)
+        .map(property => {
+            if (property === 'id') {
+                return (`<input type="text" id="${property}" class="updateInput" value="${user[property]}" disabled></input>`)
+            }
+            return (`<input type="text" id="${property}" class="updateInput" value="${user[property]}"></input>`)
+        }))
+
+    $('.modal-footer').html(`
+    <button onclick='updateUser(${user.id})'>save</button>
+    <button onclick='renderUpdateUser(${user.id})cancle</button>
+`)
+
+}
+const generateProfileInformation = ({ id, email, first_name, last_name, avatar }, collapse = true) => {
+    return `
+        <img src="${avatar}" class="rounded-circle shadow-1-strong d-flex m-auto mb-4" style="height:100px" alt="${id}">
+        <h5 class="card-title">${first_name} ${last_name}</h5>
+        <hr />
+        <p class="small">UID: ${id}</p>
+        <hr />
+        <p class="small">Email:${email}</p>
+        <button onclick=renderUpdateUser(${id})> Edit</button>
+        <button onclick="deleteUser(${id})">delete</button> 
+        `
+
+}
+
+function deleteUser(id) {
+   
+    users = users.filter(item => item.id !== +id)
+
+    console.log(users);
+
+    renderUsersList(users)
+    closeModal()
+}
+
+function resetModal() {
+    $('.modal-body').html("")
+    $('.modal-header').html("")
+    $('.modal-footer').html("")
+}

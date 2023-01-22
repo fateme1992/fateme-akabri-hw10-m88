@@ -16,38 +16,39 @@
 
 <body>
     <div class="">
-        <form class="row gy-2 gx-3 m-3 align-items-center justify-content-center " onsubmit="getVal()">
+        <form class="row gy-2 gx-3 m-3 align-items-center justify-content-center ">
             <div class="col-sm-12 col-md-9 col-lg-8">
-                <input type="text" class="form-control" id="autoSizingInput" placeholder="https://google.com">
+                <input type="text" class="form-control" id="autoSizingInput" placeholder="URL">
             </div>
 
             <div class="col-sm-12 col-md-3 col-lg-2">
                 <select class="form-select" id="autoSizingSelect">
                     <option selected>select box</option>
-                    <option class="get" value="1">get</option>
-                    <option value="2">post</option>
+                    <option class="get" value="get">get</option>
+                    <option value="post">post</option>
                 </select>
             </div>
 
-            <button type="submit" id="btn" class="col-sm-12 col-lg-2 btn btn-primary">Submit</button>
+            <button type="button" id="btn" class="col-sm-12 col-lg-2 btn btn-primary" >Submit</button>
         </form>
         <hr>
-        <div class="row gy-2 gx-3 m-3" id="request">
-            <div class="col-sm-12 col-lg-6">
+        <div class="row gy-2 gx-3 m-3" id="response">
+            <div id="requestBody" class="col-sm-12 col-lg-6">
                 <p>Request Body:</p>
                 <div class="form-floating">
-                    <textarea class="form-control h-150px"></textarea>
+                    <textarea id="requestBodyText" class="form-control h-150px"></textarea>
                 </div>
             </div>
-            <div class="col-sm-12 col-lg-6">
+            <div id="responseBody" class="col-sm-12 col-lg-6">
                 <p>Response Body:</p>
                 <div class="form-floating">
-                    <textarea class="form-control h-150px"></textarea>
+                    <textarea id="responseBodyText" class="form-control h-150px"></textarea>
                 </div>
             </div>
+            
         </div>
         <div class="row gy-2 gx-3 m-3">
-            <div class="col-sm-12 border">Plan Text:JSON , Status:200</div>
+            <div class="col-sm-12 border">Plan Text:JSON , Status: <span id="status"></span> </div>
         </div>
 
 
